@@ -4,14 +4,14 @@ import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations.setNextVersion
 
 
-organization := "net.vonbuchholtz"
+organization := "io.github.iilun"
 name := "sbt-dependency-check"
 
 val sbtDependencyCheck = (project in file("."))
 	.enablePlugins(SbtPlugin)
 	.settings(
 		libraryDependencies ++= Seq(
-			"org.owasp" % "dependency-check-core" % "8.1.2"
+			"org.owasp" % "dependency-check-core" % "12.1.1"
 		),
 		sbtPlugin := true,
 		dependencyUpdatesFilter -= moduleFilter(organization = "org.scala-lang") | moduleFilter(organization = "org.scala-sbt"),
@@ -31,11 +31,11 @@ ThisBuild / dependencyCheckAssemblyAnalyzerEnabled := Some(false)
 
 ThisBuild / publishTo := sonatypePublishToBundle.value
 ThisBuild / publishMavenStyle .withRank(KeyRanks.Invisible) := true
-sonatypeProfileName := "net.vonbuchholtz"
+sonatypeProfileName := "io.github.iilun"
 
 // To sync with Maven central, you need to supply the following information:
  Global / pomExtra := {
-	<url>https://github.com/albuch/sbt-dependency-check</url>
+	<url>https://github.com/iilun/sbt-dependency-check</url>
 		<licenses>
 			<license>
 				<name>Apache License Version 2.0</name>
@@ -43,15 +43,15 @@ sonatypeProfileName := "net.vonbuchholtz"
 			</license>
 		</licenses>
 		<scm>
-			<connection>scm:git:github.com/albuch/sbt-dependency-check</connection>
-			<developerConnection>scm:git:git@github.com:albuch/sbt-dependency-check</developerConnection>
-			<url>https://github.com/albuch/sbt-dependency-check</url>
+			<connection>scm:git:github.com/iilun/sbt-dependency-check</connection>
+			<developerConnection>scm:git:git@github.com:iilun/sbt-dependency-check</developerConnection>
+			<url>https://github.com/iilun/sbt-dependency-check</url>
 		</scm>
 		<developers>
 			<developer>
-				<id>albuch</id>
-				<name>Alexander v. Buchholtz</name>
-				<url>https://github.com/albuch/</url>
+				<id>iilun</id>
+				<name>John Doe</name>
+				<url>https://github.com/iilun/</url>
 			</developer>
 		</developers>
 }
@@ -82,7 +82,7 @@ lazy val setReleaseVersionInReadme: ReleaseStep = ReleaseStep(action = { st: Sta
 	st.log.info("Setting version to '%s' in README." format currentV)
 	val file: String = "README.md"
 	var readme: String = read(file)
-	readme = readme.replaceAll("(addSbtPlugin\\(\"net.vonbuchholtz\" % \"sbt-dependency-check\" % \")[^\"]+", "$1" + currentV)
+	readme = readme.replaceAll("(addSbtPlugin\\(\"io.github.iilun\" % \"sbt-dependency-check\" % \")[^\"]+", "$1" + currentV)
 	write(file, readme)
 	st
 })

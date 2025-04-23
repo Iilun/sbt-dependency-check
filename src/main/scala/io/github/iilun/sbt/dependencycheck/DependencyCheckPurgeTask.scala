@@ -1,4 +1,4 @@
-package net.vonbuchholtz.sbt.dependencycheck
+package io.github.iilun.sbt.dependencycheck
 
 import java.io.{File, IOException}
 

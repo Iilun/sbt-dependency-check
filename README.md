@@ -1,8 +1,8 @@
-# sbt-dependency-check [![Build Status](https://github.com/albuch/sbt-dependency-check/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/albuch/sbt-dependency-check/actions/workflows/ci.yml) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/25bd3b5e4f8e4ee78cfbdca62de31ca7)](https://app.codacy.com/app/albuch/sbt-dependency-check?utm_source=github.com&utm_medium=referral&utm_content=albuch/sbt-dependency-check&utm_campaign=Badge_Grade_Dashboard) [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.txt) 
+# sbt-dependency-check [![Build Status](https://github.com/iilun/sbt-dependency-check/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/iilun/sbt-dependency-check/actions/workflows/ci.yml) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/25bd3b5e4f8e4ee78cfbdca62de31ca7)](https://app.codacy.com/app/iilun/sbt-dependency-check?utm_source=github.com&utm_medium=referral&utm_content=iilun/sbt-dependency-check&utm_campaign=Badge_Grade_Dashboard) [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.txt) 
 The sbt-dependency-check plugin allows projects to monitor dependent libraries for known, published vulnerabilities
-(e.g. CVEs). The plugin achieves this by using the awesome [OWASP DependencyCheck library](https://github.com/jeremylong/DependencyCheck)
+(e.g. CVEs). The plugin achieves this by using the awesome [OWASP DependencyCheck library](https://github.com/dependency-check/DependencyCheck)
 which already offers several integrations with other build and continuous integration systems.
-For more information on how OWASP DependencyCheck works and how to read the reports check the [project's documentation](https://jeremylong.github.io/DependencyCheck/index.html).
+For more information on how OWASP DependencyCheck works and how to read the reports check the [project's documentation](https://dependency-check.github.io/DependencyCheck/index.html).
 
 ## Table of contents
 * [Getting started](#getting-started)
@@ -22,7 +22,7 @@ For more information on how OWASP DependencyCheck works and how to read the repo
 ## Getting started
 sbt-dependency-check is an AutoPlugin. Simply add the plugin to `project/plugins.sbt` file.
 
-    addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "5.1.0")
+    addSbtPlugin("io.github.iilun" % "sbt-dependency-check" % "5.2.0")
 
 Use sbt-dependency-check `v2.0.0` or higher as previous versions aren't compatible with NVD feeds anymore. 
 Starting with sbt-dependency-check `v3.0.0` sbt v0.13.x is no longer supported.
@@ -45,7 +45,7 @@ Later runs will only download change sets unless the last update was more than 7
 It is recommended to set up a mirror of the NVD feed in your local network to reduce the risk of rate limiting. See https://github.com/stevespringett/nist-data-mirror for instructions.
 
 ### Configuration
-`sbt-dependency-check` uses the default configuration of [OWASP DependencyCheck](https://github.com/jeremylong/DependencyCheck).
+`sbt-dependency-check` uses the default configuration of [OWASP DependencyCheck](https://github.com/dependency-check/DependencyCheck).
 You can override them in your `build.sbt` files.
 Use the task `dependencyCheckListSettings` to print all available settings and their values to sbt console.
 
@@ -64,9 +64,9 @@ Use the task `dependencyCheckListSettings` to print all available settings and t
 | dependencyCheckSkipRuntimeScope     | Skips analysis for artifacts with Runtime Scope                                                                                                                                                                                                                                                                    | false                                          |
 | dependencyCheckSkipProvidedScope    | Skips analysis for artifacts with Provided Scope                                                                                                                                                                                                                                                                   | false                                          |
 | dependencyCheckSkipOptionalScope    | Skips analysis for artifacts with Optional Scope                                                                                                                                                                                                                                                                   | false                                          |
-| dependencyCheckSuppressionFiles     | The sequence of file paths to the XML suppression files - used to suppress false positives. See [Suppressing False Positives](https://jeremylong.github.io/DependencyCheck/general/suppression.html) for the file syntax.                                                                                          |                                                |
+| dependencyCheckSuppressionFiles     | The sequence of file paths to the XML suppression files - used to suppress false positives. See [Suppressing False Positives](https://dependency-check.github.io/DependencyCheck/general/suppression.html) for the file syntax.                                                                                          |                                                |
 | dependencyCheckCpeStartsWith        | The starting String to identify the CPEs that are qualified to be imported.                                                                                                                                                                                                                                        |                                                |
-| dependencyCheckHintsFile            | The file path to the XML hints file - used to resolve [false negatives](https://jeremylong.github.io/DependencyCheck/general/hints.html).                                                                                                                                                                          |                                                |
+| dependencyCheckHintsFile            | The file path to the XML hints file - used to resolve [false negatives](https://dependency-check.github.io/DependencyCheck/general/hints.html).                                                                                                                                                                          |                                                |
 | dependencyCheckUseSbtModuleIdAsGav  | Use the SBT ModuleId as GAV identifier. Ensures GAV is available even if Maven Central isn't.                                                                                                                                                                                                                      | false                                          |
 | dependencyCheckAnalysisTimeout      | Set the analysis timeout in minutes                                                                                                                                                                                                                                                                                | 20                                             |
 | dependencyCheckEnableExperimental   | Enable the experimental analyzers. If not enabled the experimental analyzers (see below) will not be loaded or used.                                                                                                                                                                                               | false                                          |
@@ -74,7 +74,7 @@ Use the task `dependencyCheckListSettings` to print all available settings and t
 
 #### Analyzer Configuration
 The following properties are used to configure the various file type analyzers. These properties can be used to turn off specific analyzers if it is not needed. Note, that specific analyzers will automatically disable themselves if no file types that they support are detected - so specifically disabling them may not be needed.
-For more information about the individual analyzers see the [DependencyCheck Analyzer documentation](https://jeremylong.github.io/DependencyCheck/analyzers/index.html).
+For more information about the individual analyzers see the [DependencyCheck Analyzer documentation](https://dependency-check.github.io/DependencyCheck/analyzers/index.html).
 
 | Setting                                            | Description                                                                                                                                                                                                                                                 | Default Value                                                                            |
 |:---------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------|
@@ -175,7 +175,7 @@ The following properties can be configured in the plugin. However, they are less
 | dependencyCheckDatabasePassword                | The password used when connecting to the database.                                                                                                                                                    |                                                                                     |
 | dependencyCheckHostedSuppressionsEnabled       | Whether the hosted suppression file will be used.                                                                                                                                                     | true                                                                                |
 | dependencyCheckHostedSuppressionsForceUpdate   | Whether the hosted suppressions file will update regardless of the `dependencyCheckAutoUpdate` setting.                                                                                               | false                                                                               |
-| dependencyCheckHostedSuppressionsUrl           | The URL to a mirrored copy of the hosted suppressions file for internet-constrained environments.                                                                                                     | https://jeremylong.github.io/DependencyCheck/suppressions/publishedSuppressions.xml |
+| dependencyCheckHostedSuppressionsUrl           | The URL to a mirrored copy of the hosted suppressions file for internet-constrained environments.                                                                                                     | https://dependency-check.github.io/DependencyCheck/suppressions/publishedSuppressions.xml |
 | dependencyCheckHostedSuppressionsValidForHours | Sets the number of hours to wait before checking for new updates from the NVD.                                                                                                                        | 2                                                                                   |
 
 ### Multi-Project setup
@@ -235,12 +235,12 @@ If you want to apply some default configuration for all your SBT projects you ca
 
 1. Add the plugin to `~/.sbt/1.0/plugins/sbt-dependency-check.sbt`
     ```Scala
-    addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "5.1.0")
+    addSbtPlugin("io.github.iilun" % "sbt-dependency-check" % "5.1.0")
     ```
 
 1. Add settings at `~/.sbt/1.0/global.sbt` using their fully qualified name (including package and nested object structure). E.g.
     ```Scala
-    net.vonbuchholtz.sbt.dependencycheck.DependencyCheckPlugin.autoImport.dependencyCheckFormat := "All"
+    io.github.iilun.sbt.dependencycheck.DependencyCheckPlugin.autoImport.dependencyCheckFormat := "All"
     ```
 
 For further information about global settings and plugins check the sbt documentation: https://www.scala-sbt.org/1.x/docs/Global-Settings.html
@@ -256,12 +256,12 @@ SBT and `sbt-dependency-check` both honor the standard http and https proxy sett
         dependencyCheck
 
 ## Development
-* Default h2 DB user and password can be found at [dependencycheck.properties](https://github.com/jeremylong/DependencyCheck/blob/main/core/src/main/resources/dependencycheck.properties#L38).
+* Default h2 DB user and password can be found at [dependencycheck.properties](https://github.com/dependency-check/DependencyCheck/blob/main/core/src/main/resources/dependencycheck.properties#L38).
 * To update ODC DB Schema for sbt scripted test case `purgeDeletesDatabase` run query `Update PUBLIC.PROPERTIES t SET t."VALUE"= '<NEW_VERSION_NUMBER>' WHERE t.ID = 'version'`
 
 ### Release
 Run `release` task and follow instructions.
-Verify that release reached [Maven Central](https://repo1.maven.org/maven2/net/vonbuchholtz/sbt-dependency-check_2.12_1.0/). It takes up to two additional hours to be indexed for https://search.maven.org.
+Verify that release reached [Maven Central](https://repo1.maven.org/maven2/io/github/iilun/sbt-dependency-check_2.12_1.0/). It takes up to two additional hours to be indexed for https://search.maven.org.
 
 ## License
 Copyright (c) 2016-2022 Alexander Baron v. Buchholtz

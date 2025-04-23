@@ -1,4 +1,4 @@
-package net.vonbuchholtz.sbt.dependencycheck
+package io.github.iilun.sbt.dependencycheck
 
 import sbt.*
 
@@ -105,10 +105,10 @@ trait DependencyCheckKeys {
 	lazy val dependencyCheckPathToGo = settingKey[Option[File]]("The path to the \"go\" runtime.")
 
 	// Advanced configuration
-	lazy val dependencyCheckCveUrlModified = settingKey[Option[URL]]("URL for the modified CVE JSON data feed. Optional if your custom dependencyCheckCveUrlBase is just a domain name change.")
 	lazy val dependencyCheckCveUrlBase = settingKey[Option[String]]("Base URL for each year's CVE JSON data feed, the %d will be replaced with the year. ")
 	lazy val dependencyCheckCveUser = settingKey[Option[String]]("The username used when connecting to the cveUrl. ")
 	lazy val dependencyCheckCvePassword = settingKey[Option[String]]("The password used when connecting to the cveUrl. ")
+	lazy val dependencyCheckCveApiKey = settingKey[Option[String]]("The api key used when connecting to the cveUrl. ")
 	lazy val dependencyCheckCveWaitTime = settingKey[Option[Int]]("The time in milliseconds to wait between downloads from the NVD.")
 	lazy val dependencyCheckCveStartYear = settingKey[Option[Int]]("The first year of NVD CVE data to download from the NVD.")
 	lazy val dependencyCheckConnectionTimeout = settingKey[Option[Int]]("Sets the URL Connection Timeout (in milliseconds) used when downloading external data. ")

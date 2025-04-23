@@ -1,4 +1,4 @@
-package net.vonbuchholtz.sbt.dependencycheck
+package io.github.iilun.sbt.dependencycheck
 
 import org.apache.commons.logging.LogFactory
 import org.owasp.dependencycheck.Engine
@@ -126,7 +126,6 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
     dependencyCheckPathToGo := None,
 
     // Advanced configuration
-    dependencyCheckCveUrlModified := None,
     dependencyCheckCveUrlBase := None,
     dependencyCheckCveUser := None,
     dependencyCheckCvePassword := None,
@@ -220,7 +219,7 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
     log.info("Applying project settings to DependencyCheck settings")
 
     setBooleanSetting(AUTO_UPDATE, dependencyCheckAutoUpdate.value)
-    setIntSetting(CVE_CHECK_VALID_FOR_HOURS, dependencyCheckCveValidForHours.value)
+    setIntSetting(NVD_API_VALID_FOR_HOURS, dependencyCheckCveValidForHours.value)
     setFloatSetting(JUNIT_FAIL_ON_CVSS, dependencyCheckJUnitFailBuildOnCVSS.value)
 
     settings.setStringIfNotEmpty(APPLICATION_NAME, name.value)
@@ -306,12 +305,12 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
     setStringSetting(ANALYZER_ARTIFACTORY_BEARER_TOKEN, dependencyCheckArtifactoryAnalyzerBearerToken.value)
 
     // Advanced Configuration
-    setUrlSetting(CVE_MODIFIED_JSON, dependencyCheckCveUrlModified.value)
-    setStringSetting(CVE_BASE_JSON, dependencyCheckCveUrlBase.value)
-    setStringSetting(CVE_USER, dependencyCheckCveUser.value)
-    setStringSetting(CVE_PASSWORD, dependencyCheckCvePassword.value)
-    setIntSetting(CVE_DOWNLOAD_WAIT_TIME, dependencyCheckCveWaitTime.value)
-    setIntSetting(CVE_START_YEAR, dependencyCheckCveStartYear.value.map(_.max(2002)))
+    setStringSetting(NVD_API_DATAFEED_URL, dependencyCheckCveUrlBase.value)
+    setStringSetting(NVD_API_DATAFEED_USER, dependencyCheckCveUser.value)
+    setStringSetting(NVD_API_DATAFEED_PASSWORD, dependencyCheckCvePassword.value)
+    setStringSetting(NVD_API_KEY, dependencyCheckCveApiKey.value)
+    setIntSetting(NVD_API_DELAY, dependencyCheckCveWaitTime.value)
+    setIntSetting(NVD_API_DATAFEED_START_YEAR, dependencyCheckCveStartYear.value.map(_.max(2002)))
     setIntSetting(CONNECTION_TIMEOUT, dependencyCheckConnectionTimeout.value)
     setIntSetting(CONNECTION_READ_TIMEOUT, dependencyCheckConnectionReadTimeout.value)
     setFileSetting(DATA_DIRECTORY, dependencyCheckDataDirectory.value)
@@ -377,9 +376,10 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
           try {
             createReport(engine, checkDependencies.toSet, scanSet, outputDir, getFormats(Some(reportFormat), reportFormats), useSbtModuleIdAsGav, log)
             determineTaskFailureStatus(cvssScore, engine, name.value)
-          } catch { case NonFatal(e) =>
-            logFailure(log, e)
-            throw e
+          } catch {
+            case NonFatal(e) =>
+              logFailure(log, e)
+              throw e
           }
         }
 
@@ -420,9 +420,10 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
       try {
         createReport(engine, dependencies.toSet, scanSet, outputDir, getFormats(Some(reportFormat), reportFormats), useSbtModuleIdAsGav, log)
         determineTaskFailureStatus(cvssScore, engine, name.value)
-      } catch { case NonFatal(e) =>
-        logFailure(log, e)
-        throw e
+      } catch {
+        case NonFatal(e) =>
+          logFailure(log, e)
+          throw e
       }
     }
   }
@@ -454,9 +455,10 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
       try {
         createReport(engine, dependencies.toSet, scanSet, outputDir, getFormats(Some(reportFormat), reportFormats), useSbtModuleIdAsGav, log)
         determineTaskFailureStatus(cvssScore, engine, name.value)
-      } catch { case NonFatal(e) =>
-        logFailure(log, e)
-        throw e
+      } catch {
+        case NonFatal(e) =>
+          logFailure(log, e)
+          throw e
       }
     }
   }
@@ -469,20 +471,42 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
     }).get
   }
 
-  private lazy val anyCompileFilter = Def.settingDyn { compileDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Compile))) }
-  private lazy val anyRuntimeFilter = Def.settingDyn { runtimeDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Runtime))) }
-  private lazy val anyTestFilter = Def.settingDyn { testDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Test))) }
-  private lazy val anyProvidedFilter = Def.settingDyn { providedDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Provided))) }
-  private lazy val anyOptionalFilter = Def.settingDyn { optionalDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Optional))) }
-  private lazy val aggregateCompileFilter = Def.settingDyn { compileDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Compile))) }
-  private lazy val aggregateRuntimeFilter = Def.settingDyn { runtimeDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Runtime))) }
-  private lazy val aggregateTestFilter = Def.settingDyn { testDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Test))) }
-  private lazy val aggregateProvidedFilter = Def.settingDyn { providedDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Provided))) }
-  private lazy val aggregateOptionalFilter = Def.settingDyn { optionalDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Optional))) }
+  private lazy val anyCompileFilter = Def.settingDyn {
+    compileDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Compile)))
+  }
+  private lazy val anyRuntimeFilter = Def.settingDyn {
+    runtimeDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Runtime)))
+  }
+  private lazy val anyTestFilter = Def.settingDyn {
+    testDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Test)))
+  }
+  private lazy val anyProvidedFilter = Def.settingDyn {
+    providedDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Provided)))
+  }
+  private lazy val anyOptionalFilter = Def.settingDyn {
+    optionalDependenciesTask.all(ScopeFilter(inAnyProject, inConfigurations(Optional)))
+  }
+  private lazy val aggregateCompileFilter = Def.settingDyn {
+    compileDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Compile)))
+  }
+  private lazy val aggregateRuntimeFilter = Def.settingDyn {
+    runtimeDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Runtime)))
+  }
+  private lazy val aggregateTestFilter = Def.settingDyn {
+    testDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Test)))
+  }
+  private lazy val aggregateProvidedFilter = Def.settingDyn {
+    providedDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Provided)))
+  }
+  private lazy val aggregateOptionalFilter = Def.settingDyn {
+    optionalDependenciesTask.all(ScopeFilter(inAggregates(thisProjectRef.value), inConfigurations(Optional)))
+  }
 
   private lazy val compileDependenciesTask: Def.Initialize[Task[Seq[Attributed[File]]]] = Def.taskDyn {
     if (!thisProject.value.autoPlugins.contains(JvmPlugin) || (dependencyCheckSkip ?? false).value)
-      Def.task { Seq.empty }
+      Def.task {
+        Seq.empty
+      }
     else
       Def.task {
         (configuration / externalDependencyClasspath).value
@@ -490,7 +514,9 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
   }
   private lazy val runtimeDependenciesTask: Def.Initialize[Task[Seq[Attributed[File]]]] = Def.taskDyn {
     if (!thisProject.value.autoPlugins.contains(JvmPlugin) || (dependencyCheckSkip ?? false).value || (dependencyCheckSkipRuntimeScope ?? false).value)
-      Def.task { Seq.empty }
+      Def.task {
+        Seq.empty
+      }
     else
       Def.task {
         (configuration / externalDependencyClasspath).value
@@ -498,7 +524,9 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
   }
   private lazy val testDependenciesTask: Def.Initialize[Task[Seq[Attributed[File]]]] = Def.taskDyn {
     if (!thisProject.value.autoPlugins.contains(JvmPlugin) || (dependencyCheckSkip ?? false).value || (dependencyCheckSkipTestScope ?? true).value)
-      Def.task { Seq.empty }
+      Def.task {
+        Seq.empty
+      }
     else
       Def.task {
         (configuration / externalDependencyClasspath).value
@@ -506,7 +534,9 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
   }
   private lazy val providedDependenciesTask: Def.Initialize[Task[Seq[Attributed[File]]]] = Def.taskDyn {
     if (!thisProject.value.autoPlugins.contains(JvmPlugin) || (dependencyCheckSkip ?? false).value || !(dependencyCheckSkipProvidedScope ?? false).value)
-      Def.task { Seq.empty }
+      Def.task {
+        Seq.empty
+      }
     else
       Def.task {
         Classpaths.managedJars(configuration.value, classpathTypes.value, update.value)
@@ -514,7 +544,9 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
   }
   private lazy val optionalDependenciesTask: Def.Initialize[Task[Seq[Attributed[File]]]] = Def.taskDyn {
     if (!thisProject.value.autoPlugins.contains(JvmPlugin) || (dependencyCheckSkip ?? false).value || !(dependencyCheckSkipOptionalScope ?? false).value)
-      Def.task { Seq.empty }
+      Def.task {
+        Seq.empty
+      }
     else
       Def.task {
         Classpaths.managedJars(configuration.value, classpathTypes.value, update.value)
@@ -634,7 +666,10 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
 
   def failBuildOnCVSS(dependencies: Array[Dependency], cvssScore: Float): Boolean = dependencies.exists(p => {
     p.getVulnerabilities.asScala.exists(v => {
-      (v.getCvssV2 != null && v.getCvssV2.getScore >= cvssScore) || (v.getCvssV3 != null && v.getCvssV3.getBaseScore >= cvssScore || (v.getUnscoredSeverity != null && SeverityUtil.estimateCvssV2(v.getUnscoredSeverity) >= cvssScore)) || (cvssScore <= 0.0f)
+      Option(v.getCvssV2).exists(_.getCvssData.getBaseScore >= cvssScore) ||
+        Option(v.getCvssV3).exists(_.getCvssData.getBaseScore >= cvssScore) ||
+        Option(v.getUnscoredSeverity).exists(SeverityUtil.estimateCvssV2(_) >= cvssScore) ||
+        (cvssScore <= 0.0f)
     })
   })
 
@@ -655,7 +690,7 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
 
   private[this] def getFormats(format: Option[String], formats: Seq[String]): Seq[String] = {
     val upperCaseFormats: Seq[String] = formats.map(f => f.toUpperCase)
-    format.filter(_ => upperCaseFormats.isEmpty ).foldLeft(upperCaseFormats)(_ :+ _)
+    format.filter(_ => upperCaseFormats.isEmpty).foldLeft(upperCaseFormats)(_ :+ _)
   }
 
   private def logFailure(log: Logger, ex: Throwable): Unit = ex match {
@@ -670,7 +705,7 @@ object DependencyCheckPlugin extends sbt.AutoPlugin {
                 s"  - ${cause.getLocalizedMessage}"
               }.toVector
           }
-      ).mkString("\n")
+        ).mkString("\n")
       log.error(prettyMessage)
 
       // We have to log the full stacktraces here, since SBT doesn't use `printStackTrace`

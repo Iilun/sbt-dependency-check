@@ -19,6 +19,8 @@ jobs:
             sbt: "1.2.8"
           - java: 11
             sbt: "1.7.3"
+          - java: 17
+            sbt: "1.10.11"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,7 +47,3 @@ jobs:
         run: sbt -v -Dfile.encoding=UTF-8 "^^ ${{ matrix.sbt }}" clean test scripted
       - name: DependencyCheck
         run: sbt -v -Dfile.encoding=UTF-8 "^^ ${{ matrix.sbt }}" dependencyCheck
-      - name: Print DependencyCheck Result
-        uses: albuch/sbt-dependency-check-action@v1.0
-        with:
-          jsonReportPath: "target/scala-2.12/sbt-1.0/dependency-check-report.json"

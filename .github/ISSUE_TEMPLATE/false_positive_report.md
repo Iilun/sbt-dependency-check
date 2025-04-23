@@ -6,7 +6,7 @@ labels: wontfix
 assignees: ''
 
 ---
-As `sbt-dependency-check` is just a wrapper for SBT around the awesome [core dependency-check](https://github.com/jeremylong/DependencyCheck) 
-project please report false positives/negatives [issues](https://github.com/jeremylong/DependencyCheck/issues) there.
+As `sbt-dependency-check` is just a wrapper for SBT around the awesome [core dependency-check](https://github.com/dependency-check/DependencyCheck) 
+project please report false positives/negatives [issues](https://github.com/dependency-check/DependencyCheck/issues) there.
 
 
